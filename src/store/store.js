@@ -6,22 +6,28 @@ const DEL_RESOURSES = 'DEL_RESOURSES';
 export const createStore = reducer => {
 	let state = reducer({}, { type: 'INIT' });
 	let subscribers = [];
+	console.log(state);
 
 	return {
 		getState: () => state,
-		dispatch: action => (state = reducer(state, action)),
-		subsrcibe: callback => subscribers.push(callback),
+		dispatch: action => {
+			state = reducer(state, action);
+			subscribers.forEach(() => console.log('Create Store WORK !!! '));
+		},
+		subscribe: callback => subscribers.push(callback),
 	};
 };
 
 const initBondsListState = [
 	{
 		id: 1,
+		key: 1,
 		name: 'name',
 		age: 25,
 	},
 	{
 		id: 2,
+		key: 2,
 		name: 'vasa',
 		age: 44,
 	},
@@ -62,6 +68,7 @@ const initState = {
 };
 
 const bondsReducer = (state = initState.initBondsListState, action) => {
+	console.log('Action:', action);
 	switch (action.type) {
 		case ADD_BONDS:
 			return [...state, action.payload];
@@ -117,9 +124,4 @@ export const rootReducer = combineReducer({
 	isModalVisible: modalReducer,
 });
 
-const store = createStore(rootReducer);
-
-const state = store.getState();
-
-const bondsList = state.bondsList;
-console.log(bondsList);
+export const store = createStore(rootReducer);

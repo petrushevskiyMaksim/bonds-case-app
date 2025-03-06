@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Form, Input, InputNumber, Typography, Popconfirm } from 'antd';
+import { useStore } from '../../store/DataFormContext';
 import type { ColumnType } from 'antd/es/table';
 import './table.css';
 
@@ -32,8 +33,6 @@ export interface DataType {
 	key: string;
 	editable: boolean;
 }
-
-// interface CellProps {}
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
 	editing: boolean;
@@ -86,10 +85,33 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const TableEdit: React.FC<TableEditProps> = ({ className }) => {
+	const store = useStore();
+	const bondsList = store.getState().bondsList;
+	const [localBondsList, setLocalBondsList] = useState([]);
 	const [form] = Form.useForm();
 	const [editingKey, setEditingKey] = useState<string>('');
 
+	console.log(bondsList);
+
+	useEffect(() => {
+		const unsubscribe = store.subscribe(() => {
+			const newList = [...bondsList];
+			setLocalBondsList(newList); // Обновляем локальное состояние
+		});
+	}, [store]);
+
 	const isEditing = (record: DataType) => record.key === editingKey;
+
+	const edit = (record: DataType) => {
+		form.setFieldsValue({ ...record });
+		setEditingKey(record.key);
+	};
+
+	const handleDelete = (key: React.Key) => {
+		// const newData = bondsList.filter(item => item.key !== key);
+
+		store.dispatch({ type: 'DEL_BONDS', payload: key });
+	};
 
 	// Определяем столбцы таблицы
 	const columns: EditableColumnType<DataType>[] = [
@@ -190,7 +212,7 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 						>
 							Edit
 						</Typography.Link>
-						{/* {bondsList.length >= 1 ? (
+						{localBondsList.length >= 1 ? (
 							<Popconfirm
 								title='Уверены, что хотите удалить?'
 								onConfirm={() => handleDelete(record.key)}
@@ -199,7 +221,7 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 									Delete
 								</a>
 							</Popconfirm>
-						) : null} */}
+						) : null}
 					</>
 				);
 			},
@@ -242,44 +264,44 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 		};
 	});
 
-	const bondsTest = [
-		{
-			order: 1,
-			name: `Фэйк`,
-			sumBonds: 2,
-			nominalPrice: 1000,
-			buyPrice: 950,
-			brokerTax: 0.3,
-			buyDate: '2023-01-01',
-			sellDate: '2023-01-02',
-			couponPrice: 50,
-			couponDate: '2023-01-03',
-			couponPeriod: 2,
-			NKD: 2,
-			daysToMaturity: 182,
-			yieldYear: 0,
-			key: Date.now().toString(),
-			editable: true,
-		},
-		{
-			order: 2,
-			name: `Фэйк 2`,
-			sumBonds: 2,
-			nominalPrice: 1000,
-			buyPrice: 950,
-			brokerTax: 0.3,
-			buyDate: '2023-01-01',
-			sellDate: '2023-01-02',
-			couponPrice: 50,
-			couponDate: '2023-01-03',
-			couponPeriod: 2,
-			NKD: 2,
-			daysToMaturity: 182,
-			yieldYear: 0,
-			key: Date.now().toString() + 1,
-			editable: true,
-		},
-	];
+	// const bondsTest = [
+	// 	{
+	// 		order: 1,
+	// 		name: `Фэйк`,
+	// 		sumBonds: 2,
+	// 		nominalPrice: 1000,
+	// 		buyPrice: 950,
+	// 		brokerTax: 0.3,
+	// 		buyDate: '2023-01-01',
+	// 		sellDate: '2023-01-02',
+	// 		couponPrice: 50,
+	// 		couponDate: '2023-01-03',
+	// 		couponPeriod: 2,
+	// 		NKD: 2,
+	// 		daysToMaturity: 182,
+	// 		yieldYear: 0,
+	// 		key: Date.now().toString(),
+	// 		editable: true,
+	// 	},
+	// 	{
+	// 		order: 2,
+	// 		name: `Фэйк 2`,
+	// 		sumBonds: 2,
+	// 		nominalPrice: 1000,
+	// 		buyPrice: 950,
+	// 		brokerTax: 0.3,
+	// 		buyDate: '2023-01-01',
+	// 		sellDate: '2023-01-02',
+	// 		couponPrice: 50,
+	// 		couponDate: '2023-01-03',
+	// 		couponPeriod: 2,
+	// 		NKD: 2,
+	// 		daysToMaturity: 182,
+	// 		yieldYear: 0,
+	// 		key: Date.now().toString() + 1,
+	// 		editable: true,
+	// 	},
+	// ];
 
 	return (
 		<Form form={form} component={false}>
@@ -287,7 +309,7 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 				components={{ body: { cell: EditableCell } }}
 				className={className}
 				columns={mergedColumns}
-				dataSource={bondsTest}
+				dataSource={localBondsList}
 				sticky
 				scroll={{ x: 'max-content', y: 300 }}
 				pagination={{ pageSize: 10 }}

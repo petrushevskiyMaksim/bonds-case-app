@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState, useContext, createContext } from 'react';
 import type { FormInstance } from 'antd';
 import { Button, Form, Input, DatePicker } from 'antd';
+import { useStore } from '../../store/DataFormContext';
+// import { store } from '../../store/store';
 import './form.css';
 
 interface FormBondProps {
@@ -31,12 +33,42 @@ const SubmitButton: React.FC<React.PropsWithChildren<SubmitButtonProps>> = ({
 };
 
 const FormBond: React.FC<FormBondProps> = ({ className }) => {
+	const store = useStore();
+
+	console.log(store.getState());
+
+	const ADD_BONDS = 'ADD_BONDS';
+	const [order, setOrder] = useState(1);
 	const [form] = Form.useForm();
+
+	const onFinish = (values: any) => {
+		const newData: DataType = {
+			...values,
+			// Преобразуем объекты moment в строки
+			buyDate: values.buyDate ? values.buyDate.format('DD-MM-YYYY') : '',
+			sellDate: values.sellDate ? values.sellDate.format('DD-MM-YYYY') : '',
+			couponDate: values.couponDate
+				? values.couponDate.format('DD-MM-YYYY')
+				: '',
+			// couponIncome: calcCouponIncome(values),
+			// couponIncomeRub: calcCouponRub(values),
+			// daysToMaturity: daysMaturity(values),
+			// yieldYear: yieldYearIncome(values),
+			key: Date.now().toString(),
+			order: order,
+		};
+		store.dispatch({ type: ADD_BONDS, payload: newData });
+		setOrder(order + 1);
+		form.resetFields();
+	};
+
+	console.log(store.getState().bondsList);
 
 	return (
 		<Form
 			className={className}
 			form={form}
+			onFinish={onFinish}
 			name='validateOnly'
 			layout='vertical'
 			autoComplete='on'
