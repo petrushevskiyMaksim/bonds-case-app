@@ -1,0 +1,54 @@
+.resourses-wrap {
+	max-width: 300px;
+	border-radius: 10px;
+	box-shadow: 0px 1px 1px 1px #c6c6c6d3;
+	background-color: #fff;
+}
+
+.resourses-list-wrap {
+	flex: 1 1 auto;
+}
+
+.list-resourses {
+	max-height: 380px;
+	overflow: auto;
+}
+
+.btn-resourses {
+	margin-top: auto;
+}
+
+:where(.css-dev-only-do-not-override-1yacf91).ant-list-split .ant-list-item {
+	border-block-end: none;
+}
+
+.icon-resourses {
+	cursor: pointer;
+	font-weight: 700;
+}
+
+@media (max-width: 900px) {
+	.resourses-wrap {
+		max-width: 50%;
+	}
+}
+
+@media (max-width: 768px) {
+	.resourses-wrap {
+		margin: 0 -10px;
+		flex: 0 1 50% !important;
+		max-width: 100% !important;
+	}
+	.list-resourses {
+		max-height: 250px;
+	}
+}
+
+@media (max-width: 750px) {
+	.resourses-wrap {
+		flex: 1 1 100% !important;
+	}
+	.list-resourses {
+		margin-bottom: 20px;
+	}
+}

@@ -1,0 +1,15 @@
+.row-info-total:not(:last-child) {
+	margin-bottom: 30px;
+}
+
+.text-card {
+	font-size: 24px;
+	font-weight: 700 !important;
+}
+
+.card-title-wrap {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 0;
+}

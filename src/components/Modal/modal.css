@@ -1,0 +1,9 @@
+@media (max-width: 768px) {
+	.modal-btn-wrap {
+		flex-direction: column;
+	}
+}
+
+.modal-btn-wrap input {
+	border: 1px solid #0000001c;
+}

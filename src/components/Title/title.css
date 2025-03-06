@@ -1,0 +1,23 @@
+.title {
+	margin: 0;
+	padding: 25px 20px;
+	font-size: 24px;
+	letter-spacing: -1px;
+	font-weight: 700;
+	color: rgb(33, 53, 71) !important;
+	border-bottom: 2px solid #d0d0d094;
+}
+
+@media (max-width: 800px) {
+	.title {
+		padding: 20px 15px;
+		font-size: 22px;
+	}
+}
+
+@media (max-width: 768px) {
+	.title {
+		padding: 15px 10px;
+		font-size: 18px;
+	}
+}
