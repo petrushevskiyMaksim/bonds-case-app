@@ -1,8 +1,9 @@
-import React, { useState, useContext, createContext } from 'react';
+import React, { useState } from 'react';
 import type { FormInstance } from 'antd';
 import { Button, Form, Input, DatePicker } from 'antd';
-import { useStore } from '../../store/DataFormContext';
-// import { store } from '../../store/store';
+import { useBondStoreContext } from '../../store/BondStoreProvider';
+import { DataType } from '../Table/TableEdit'; // тип облигации (структура данных)
+import moment from 'moment'; // Импортируем moment для работы с датами
 import './form.css';
 
 interface FormBondProps {
@@ -33,16 +34,12 @@ const SubmitButton: React.FC<React.PropsWithChildren<SubmitButtonProps>> = ({
 };
 
 const FormBond: React.FC<FormBondProps> = ({ className }) => {
-	const store = useStore();
-
-	console.log(store.getState());
-
-	const ADD_BONDS = 'ADD_BONDS';
+	const { addBond } = useBondStoreContext();
 	const [order, setOrder] = useState(1);
 	const [form] = Form.useForm();
 
 	const onFinish = (values: any) => {
-		const newData: DataType = {
+		const newBond: DataType = {
 			...values,
 			// Преобразуем объекты moment в строки
 			buyDate: values.buyDate ? values.buyDate.format('DD-MM-YYYY') : '',
@@ -57,12 +54,44 @@ const FormBond: React.FC<FormBondProps> = ({ className }) => {
 			key: Date.now().toString(),
 			order: order,
 		};
-		store.dispatch({ type: ADD_BONDS, payload: newData });
+		addBond(newBond);
 		setOrder(order + 1);
 		form.resetFields();
 	};
 
-	console.log(store.getState().bondsList);
+	const fillFakeData = () => {
+		const randomName = 'ОФЗ ' + Math.floor(Math.random() * 10000);
+		const randomSum = Math.floor(Math.random() * 10) + 1;
+		const randomNominal = 1000; // 1000
+		const randomBuyPrice = Math.floor(Math.random() * 900) + 100; // от 100 до 1000
+		const randomBrokerTax = Number((Math.random() * 0.5).toFixed(2)); // от 0 до 0.5
+		const randomCouponPrice = Math.floor(Math.random() * 90) + 10; // от 10 до 100
+		const randomCouponPeriod = Math.floor(Math.random() * 4) + 1; // от 1 до 4
+		const randomNKD = Number((Math.random() * 100).toFixed(0)); // от 0 до 100
+
+		// Генерация дат: для buyDate выбираем случайное число дней назад, для sellDate – дату после buyDate,
+		// а для couponDate – ближайшую будущую дату.
+		const buyDate = moment().subtract(Math.floor(Math.random() * 100), 'days');
+		const sellDate = moment(buyDate).add(
+			Math.floor(Math.random() * 30) + 1,
+			'days'
+		);
+		const couponDate = moment().add(Math.floor(Math.random() * 30) + 1, 'days');
+
+		form.setFieldsValue({
+			name: randomName,
+			sumBonds: randomSum,
+			nominalPrice: randomNominal,
+			buyPrice: randomBuyPrice,
+			brokerTax: randomBrokerTax,
+			buyDate: buyDate,
+			sellDate: sellDate,
+			couponPrice: randomCouponPrice,
+			couponDate: couponDate,
+			couponPeriod: randomCouponPeriod,
+			NKD: randomNKD,
+		});
+	};
 
 	return (
 		<Form
@@ -162,7 +191,7 @@ const FormBond: React.FC<FormBondProps> = ({ className }) => {
 				<Button type='primary' htmlType='reset'>
 					Очистить форму
 				</Button>
-				<Button type='primary' htmlType='button'>
+				<Button type='primary' htmlType='button' onClick={fillFakeData}>
 					Фэйковая облигация
 				</Button>
 			</div>

@@ -1,0 +1,7 @@
+const ADD_BONDS: string = 'ADD_BONDS';
+const DEL_BONDS: string = 'DEL_BONDS';
+const EDIT_BONDS: string = 'EDIT_BONDS';
+const ADD_RESOURSES: string = 'ADD_RESOURSES';
+const DEL_RESOURSES: string = 'DEL_RESOURSES';
+
+export { ADD_BONDS, DEL_BONDS,EDIT_BONDS, ADD_RESOURSES, DEL_RESOURSES };

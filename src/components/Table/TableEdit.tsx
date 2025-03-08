@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Table, Form, Input, InputNumber, Typography, Popconfirm } from 'antd';
-import { useStore } from '../../store/DataFormContext';
+import { useBondStoreContext } from '../../store/BondStoreProvider';
 import type { ColumnType } from 'antd/es/table';
 import './table.css';
 
@@ -16,6 +16,7 @@ interface TableEditProps {
 }
 
 export interface DataType {
+	key: string;
 	order: number;
 	name: string;
 	sumBonds: number;
@@ -30,7 +31,6 @@ export interface DataType {
 	NKD: number;
 	daysToMaturity: number;
 	yieldYear: number;
-	key: string;
 	editable: boolean;
 }
 
@@ -85,20 +85,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const TableEdit: React.FC<TableEditProps> = ({ className }) => {
-	const store = useStore();
-	const bondsList = store.getState().bondsList;
-	const [localBondsList, setLocalBondsList] = useState([]);
-	const [form] = Form.useForm();
+	const { bonds, removeBond, editingBond } = useBondStoreContext();
 	const [editingKey, setEditingKey] = useState<string>('');
-
-	console.log(bondsList);
-
-	useEffect(() => {
-		const unsubscribe = store.subscribe(() => {
-			const newList = [...bondsList];
-			setLocalBondsList(newList); // Обновляем локальное состояние
-		});
-	}, [store]);
+	const [form] = Form.useForm();
 
 	const isEditing = (record: DataType) => record.key === editingKey;
 
@@ -108,9 +97,41 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 	};
 
 	const handleDelete = (key: React.Key) => {
-		// const newData = bondsList.filter(item => item.key !== key);
+		removeBond(key);
+	};
 
-		store.dispatch({ type: 'DEL_BONDS', payload: key });
+	// Сохранение изменений
+	const save = async (key: React.Key) => {
+		try {
+			// Получаем значения из формы (отредактированный обьект ОФЗ)
+			const row = await form.validateFields();
+			// Копируем массив облигаций
+			const newBonds = [...bonds];
+			// Находим в массиве индекс того обьекта(ОФЗ) на котором нажали Edit
+			const index = newBonds.findIndex(item => key === item.key);
+
+			// Если индекс 0 или больше значит элемент есть в массиве и мы попадаем в этот блок
+			if (index > -1) {
+				// Создаем текущий элемент на котором было нажатие
+				const currentItem: DataType = newBonds[index];
+
+				// Обновляем запись формируем из данных текущего элемента и добавляем обновленные данные из отредактированного элемента
+				const updatedRow = {
+					...currentItem,
+					...row,
+				};
+
+				// newBonds.splice(index, 1, updatedRow);
+				editingBond(updatedRow.key, updatedRow);
+				setEditingKey('');
+			}
+		} catch (errInfo) {
+			console.log('Validate Failed:', errInfo);
+		}
+	};
+
+	const cancel = () => {
+		setEditingKey('');
 	};
 
 	// Определяем столбцы таблицы
@@ -189,10 +210,11 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 			editable: false,
 			render: (_: any, record: DataType) => {
 				const editable = isEditing(record);
+
 				return editable ? (
 					<span>
 						<Typography.Link
-							// onClick={() => save(record.key)}
+							onClick={() => save(record.key)}
 							style={{ marginInlineEnd: 8 }}
 						>
 							Save
@@ -212,7 +234,7 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 						>
 							Edit
 						</Typography.Link>
-						{localBondsList.length >= 1 ? (
+						{bonds.length >= 1 ? (
 							<Popconfirm
 								title='Уверены, что хотите удалить?'
 								onConfirm={() => handleDelete(record.key)}
@@ -264,52 +286,13 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 		};
 	});
 
-	// const bondsTest = [
-	// 	{
-	// 		order: 1,
-	// 		name: `Фэйк`,
-	// 		sumBonds: 2,
-	// 		nominalPrice: 1000,
-	// 		buyPrice: 950,
-	// 		brokerTax: 0.3,
-	// 		buyDate: '2023-01-01',
-	// 		sellDate: '2023-01-02',
-	// 		couponPrice: 50,
-	// 		couponDate: '2023-01-03',
-	// 		couponPeriod: 2,
-	// 		NKD: 2,
-	// 		daysToMaturity: 182,
-	// 		yieldYear: 0,
-	// 		key: Date.now().toString(),
-	// 		editable: true,
-	// 	},
-	// 	{
-	// 		order: 2,
-	// 		name: `Фэйк 2`,
-	// 		sumBonds: 2,
-	// 		nominalPrice: 1000,
-	// 		buyPrice: 950,
-	// 		brokerTax: 0.3,
-	// 		buyDate: '2023-01-01',
-	// 		sellDate: '2023-01-02',
-	// 		couponPrice: 50,
-	// 		couponDate: '2023-01-03',
-	// 		couponPeriod: 2,
-	// 		NKD: 2,
-	// 		daysToMaturity: 182,
-	// 		yieldYear: 0,
-	// 		key: Date.now().toString() + 1,
-	// 		editable: true,
-	// 	},
-	// ];
-
 	return (
 		<Form form={form} component={false}>
 			<Table<DataType>
 				components={{ body: { cell: EditableCell } }}
 				className={className}
 				columns={mergedColumns}
-				dataSource={localBondsList}
+				dataSource={bonds}
 				sticky
 				scroll={{ x: 'max-content', y: 300 }}
 				pagination={{ pageSize: 10 }}

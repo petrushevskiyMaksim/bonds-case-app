@@ -6,14 +6,13 @@ import { ListResourses } from './components/ListResourses';
 import TableEdit from './components/Table/TableEdit';
 import { _Modal } from './components/Modal';
 import InfoTotal from './components/InfoBlock/InfoTotal';
-import { storeProvider } from './store/DataFormContext';
-import { store } from './store/store';
+import { BondStoreProvider } from './store/BondStoreProvider';
 import './App.css';
 import './components/Table/table.css';
 
 const App: React.FC = () => {
 	return (
-		<storeProvider value={store}>
+		<BondStoreProvider>
 			<Layout className='wrapper'>
 				<Flex className='form-resourses-wrapper' gap={40}>
 					<Flex className='form-wrap' flex={'auto'} vertical>
@@ -39,7 +38,7 @@ const App: React.FC = () => {
 					<TableEdit className=''></TableEdit>
 				</Flex>
 			</Layout>
-		</storeProvider>
+		</BondStoreProvider>
 	);
 };
 
