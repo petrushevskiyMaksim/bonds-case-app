@@ -16,8 +16,6 @@ const initialBonds: DataType[] = [
 
 // Редьюсер для управления списком облигаций
 function bondsReducer(state: DataType[], action: BondsAction): DataType[] {
-	console.log(state);
-
 	switch (action.type) {
 		case ADD_BONDS:
 			// Добавляем новую облигацию в конец списка

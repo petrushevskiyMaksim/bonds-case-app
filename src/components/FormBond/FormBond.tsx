@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import type { FormInstance } from 'antd';
 import { Button, Form, Input, DatePicker } from 'antd';
 import { useBondStoreContext } from '../../store/BondStoreProvider';
+import { daysMaturity } from '../utils/date/daysMaturity';
+import { calcCouponIncome } from '../utils/calculations/calcCouponIncome';
 import { DataType } from '../Table/TableEdit'; // тип облигации (структура данных)
 import moment from 'moment'; // Импортируем moment для работы с датами
 import './form.css';
@@ -34,11 +36,13 @@ const SubmitButton: React.FC<React.PropsWithChildren<SubmitButtonProps>> = ({
 };
 
 const FormBond: React.FC<FormBondProps> = ({ className }) => {
-	const { addBond } = useBondStoreContext();
-	const [order, setOrder] = useState(1);
+	const { bonds, addBond } = useBondStoreContext();
 	const [form] = Form.useForm();
 
 	const onFinish = (values: any) => {
+		// const { calcDaysToMaturity } = daysMaturity(values);
+		console.log(values.buyDate);
+
 		const newBond: DataType = {
 			...values,
 			// Преобразуем объекты moment в строки
@@ -47,15 +51,16 @@ const FormBond: React.FC<FormBondProps> = ({ className }) => {
 			couponDate: values.couponDate
 				? values.couponDate.format('DD-MM-YYYY')
 				: '',
-			// couponIncome: calcCouponIncome(values),
+
+			couponIncome: calcCouponIncome(values),
 			// couponIncomeRub: calcCouponRub(values),
-			// daysToMaturity: daysMaturity(values),
+			daysToMaturity: daysMaturity(values),
 			// yieldYear: yieldYearIncome(values),
 			key: Date.now().toString(),
-			order: order,
+			order: bonds.length + 1,
 		};
+
 		addBond(newBond);
-		setOrder(order + 1);
 		form.resetFields();
 	};
 

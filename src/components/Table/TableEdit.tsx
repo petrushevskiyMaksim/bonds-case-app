@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Table, Form, Input, InputNumber, Typography, Popconfirm } from 'antd';
 import { useBondStoreContext } from '../../store/BondStoreProvider';
+import { formateDate } from '../utils/date/formateDate';
+import { daysMaturity } from '../utils/date/daysMaturity';
 import type { ColumnType } from 'antd/es/table';
 import './table.css';
 
@@ -91,20 +93,36 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 
 	const isEditing = (record: DataType) => record.key === editingKey;
 
-	const edit = (record: DataType) => {
+	const editBond = (record: DataType) => {
 		form.setFieldsValue({ ...record });
 		setEditingKey(record.key);
 	};
 
-	const handleDelete = (key: React.Key) => {
+	const deleteBond = (key: React.Key) => {
 		removeBond(key);
 	};
 
 	// Сохранение изменений
-	const save = async (key: React.Key) => {
+	const saveBond = async (key: React.Key) => {
 		try {
-			// Получаем значения из формы (отредактированный обьект ОФЗ)
+			// Получаем значения из формы (редактируемый обьект ОФЗ)
 			const row = await form.validateFields();
+			console.log(row);
+
+			const formateBuyDate = formateDate(row.buyDate);
+			const formateSellDate = formateDate(row.sellDate);
+			const formateCouponDate = formateDate(row.couponDate);
+
+			console.log(formateCouponDate);
+
+			const newRow = {
+				...row,
+				buyDate: formateBuyDate ? formateBuyDate : row.buyDate,
+				sellDate: formateSellDate ? formateSellDate : row.sellDate,
+				couponDate: formateCouponDate ? formateCouponDate : row.couponDate,
+				daysToMaturity: daysMaturity(row),
+			};
+			console.log(newRow.couponDate);
 			// Копируем массив облигаций
 			const newBonds = [...bonds];
 			// Находим в массиве индекс того обьекта(ОФЗ) на котором нажали Edit
@@ -118,11 +136,10 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 				// Обновляем запись формируем из данных текущего элемента и добавляем обновленные данные из отредактированного элемента
 				const updatedRow = {
 					...currentItem,
-					...row,
+					...newRow,
 				};
 
-				// newBonds.splice(index, 1, updatedRow);
-				editingBond(updatedRow.key, updatedRow);
+				editingBond(key, updatedRow);
 				setEditingKey('');
 			}
 		} catch (errInfo) {
@@ -130,7 +147,7 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 		}
 	};
 
-	const cancel = () => {
+	const cancelBond = () => {
 		setEditingKey('');
 	};
 
@@ -214,14 +231,14 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 				return editable ? (
 					<span>
 						<Typography.Link
-							onClick={() => save(record.key)}
+							onClick={() => saveBond(record.key)}
 							style={{ marginInlineEnd: 8 }}
 						>
 							Save
 						</Typography.Link>
 						<Popconfirm
 							title='Уверены, что хотите отменить?'
-							onConfirm={cancel}
+							onConfirm={cancelBond}
 						>
 							<a>Cancel</a>
 						</Popconfirm>
@@ -230,14 +247,14 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 					<>
 						<Typography.Link
 							disabled={editingKey !== ''}
-							onClick={() => edit(record)}
+							onClick={() => editBond(record)}
 						>
 							Edit
 						</Typography.Link>
 						{bonds.length >= 1 ? (
 							<Popconfirm
 								title='Уверены, что хотите удалить?'
-								onConfirm={() => handleDelete(record.key)}
+								onConfirm={() => deleteBond(record.key)}
 							>
 								<a style={{ display: 'inline-block', marginLeft: '8px' }}>
 									Delete
