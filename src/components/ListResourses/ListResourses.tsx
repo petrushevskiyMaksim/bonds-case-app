@@ -1,6 +1,7 @@
 import React from 'react';
-import { List } from 'antd';
+import { List, Popconfirm } from 'antd';
 import { HiMiniArrowTopRightOnSquare } from 'react-icons/hi2';
+import { useAppStoreContext } from '../../store/BondStoreProvider';
 import './ListResourses.css';
 
 interface ListResoursesProps {
@@ -8,46 +9,30 @@ interface ListResoursesProps {
 }
 
 const ListResourses: React.FC<ListResoursesProps> = ({ className }) => {
-	const dataResourses: Resource[] = [
-		{
-			id: Date.now(),
-			text: 'SmartLab - Облигации',
-			url: 'https://smart-lab.ru/q/ofz/',
-		},
-		{
-			id: Date.now(),
-			text: 'Московская биржа - Облигации',
-			url: 'https://www.moex.com/s2644',
-		},
-		{
-			id: Date.now(),
-			text: 'RusBonds - Облигации',
-			url: 'https://rusbonds.ru/',
-		},
-		{
-			id: Date.now(),
-			text: 'ДОХОД - Анализ облигации',
-			url: 'https://www.dohod.ru/analytic/bonds',
-		},
-		{
-			id: Date.now(),
-			text: 'Investing.com - Облигации',
-			url: 'https://ru.investing.com/rates-bonds/world-government-bonds',
-		},
-	];
+	const { resourses, removeResourse } = useAppStoreContext();
+
+	const handleIconClick = (id: string) => {
+		removeResourse(id);
+	};
+
 	return (
 		<>
 			<List
 				className={className}
-				dataSource={dataResourses}
+				dataSource={resourses}
 				split
 				renderItem={item => (
 					<List.Item className='list-item'>
-						<HiMiniArrowTopRightOnSquare
-							className='icon-resourses'
-							size={15}
-							strokeWidth={1}
-						/>{' '}
+						<Popconfirm
+							title='Уверены, что хотите удалить?'
+							onConfirm={() => handleIconClick(item.id)}
+						>
+							<HiMiniArrowTopRightOnSquare
+								className='icon-resourses'
+								size={15}
+								strokeWidth={1}
+							/>
+						</Popconfirm>{' '}
 						<a target='_blank' href={item.url} rel='noopener noreferrer'>
 							{item.text}
 						</a>

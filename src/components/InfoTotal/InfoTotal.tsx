@@ -1,47 +1,45 @@
-import { useEffect, useState } from 'react';
+import React from 'react';
+import { useAppStoreContext } from '../../store/BondStoreProvider';
 import { Card, Row, Col, Typography } from 'antd';
 import _Select from '../Select/Select';
+import { calcIncomeForMonth } from '../../store/calculations';
 import { MONTH_FOR_SELECT } from '../../constants';
 import { FaRubleSign } from 'react-icons/fa';
 import './InfoTotal.css';
 
 const { Text } = Typography;
 
-const InfoTotal = () => {
-	const [sumCost, setSumCost] = useState(0);
-	const [sumIncome, setSumIncome] = useState((0).toFixed(2));
+const InfoTotal = React.memo(() => {
+	const { bonds, totalCost, totalIncome, totalMonthIncome, changeMonthIncome } =
+		useAppStoreContext();
 
 	const COLUMNS = [
 		{
 			title: 'Расходы',
-			number: sumCost,
+			number: totalCost,
 			type: 'cost',
 		},
 		{
-			title: 'Прибыль',
-			number: sumIncome,
+			title: 'Доходы',
+			number: totalIncome,
 			type: 'income',
 		},
 		{
 			title: 'Сумма дохода в ',
-			number: 0,
+			number: totalMonthIncome,
 			type: 'income',
 		},
 		{
-			title: 'Средне годовая доходность',
+			title: 'Текущая доходность',
 			number: 0,
 			type: 'income',
 		},
 	];
 
-
-
 	const handleSelectChange = (value: string) => {
 		console.log(`selected ${value}`);
-	};
-
-	const handleSelectSearch = (value: string) => {
-		console.log('search:', value);
+		changeMonthIncome(bonds, value);
+		// calcProfitForMonth(bonds, value);
 	};
 
 	return (
@@ -58,7 +56,6 @@ const InfoTotal = () => {
 										placeholder={'Месяц'}
 										options={MONTH_FOR_SELECT}
 										onChange={handleSelectChange}
-										onSearch={handleSelectSearch}
 									/>
 								</div>
 							) : (
@@ -77,6 +74,6 @@ const InfoTotal = () => {
 			))}
 		</Row>
 	);
-};
+});
 
 export default InfoTotal;

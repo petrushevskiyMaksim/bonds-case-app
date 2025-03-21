@@ -1,25 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Modal, Flex, Input, Form } from 'antd';
+import { useAppStoreContext } from '../../store/BondStoreProvider';
+import type { Resourses } from '../../store/useResourseStore';
+import { v4 as uuidv4 } from 'uuid';
 import './modal.css';
 
-const _Modal: React.FC = () => {
-	const [form] = Form.useForm(); // Создаем форму с помощью useForm()
+export const MyModal: React.FC = () => {
+	const [form] = Form.useForm();
+	const { addResourse } = useAppStoreContext();
+	const [isModalVisible, setIsModalVisible] = useState(false);
 
-	const showModal = () => {};
+	const showModal = () => {
+		setIsModalVisible(true);
+	};
 
-	const handleOk = () => {};
-
-	const handleCancel = () => {};
-
-	// const onFinish = (values: Resource) => {
-	// 	const newResourse = {
-	// 		...values,
-	// 		id: Date.now(), // Уникальный ключ для таблицы
-	// 	};
-	// 	dispatch(prevResourse => [...prevResourse, newResourse]);
-	// 	form.resetFields(); // Очищаем поля формы после добавления
-	// 	dispatch(false); // Закрываем модальное окно
+	// const handleOk = () => {
+	// 	setIsModalVisible(false);
 	// };
+
+	const handleCancel = () => {
+		setIsModalVisible(false);
+	};
+
+	const onFinish = (values: Resourses) => {
+		const newResourse: Resourses = {
+			...values,
+			id: uuidv4(), // Уникальный ключ для таблицы
+		};
+
+		addResourse(newResourse);
+		form.resetFields(); // Очищаем поля формы после добавления
+		setIsModalVisible(false); // Закрываем модальное окно
+	};
 
 	return (
 		<>
@@ -28,9 +40,9 @@ const _Modal: React.FC = () => {
 			</Button>
 			<Modal
 				centered
-				// open={isModalVisible}
+				open={isModalVisible}
 				title='Добавить ссылку'
-				onOk={handleOk}
+				// onOk={handleOk}
 				onCancel={handleCancel}
 				footer={
 					<Flex className='modal-btn-wrap' gap={'20px'}>
@@ -39,7 +51,7 @@ const _Modal: React.FC = () => {
 							href='https://google.com'
 							target='_blank'
 							type='primary'
-							onClick={handleOk}
+							// onClick={handleOk}
 						>
 							Поиск в Google
 						</Button>
@@ -49,7 +61,7 @@ const _Modal: React.FC = () => {
 					</Flex>
 				}
 			>
-				<Form form={form} layout='vertical'>
+				<Form form={form} onFinish={onFinish} layout='vertical'>
 					<Form.Item name='text' label='Название' rules={[{ required: true }]}>
 						<Input placeholder='Введите название' variant='filled' />
 					</Form.Item>
@@ -65,7 +77,7 @@ const _Modal: React.FC = () => {
 							key='submit'
 							htmlType='submit'
 							type='primary'
-							onClick={handleOk}
+							// onClick={handleOk}
 						>
 							Добавить
 						</Button>
@@ -76,4 +88,4 @@ const _Modal: React.FC = () => {
 	);
 };
 
-export default _Modal;
+// export default _Modal;

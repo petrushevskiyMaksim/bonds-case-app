@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import { Table, Form, Input, InputNumber, Typography, Popconfirm } from 'antd';
-import { useBondStoreContext } from '../../store/BondStoreProvider';
+import { useAppStoreContext } from '../../store/BondStoreProvider';
 import { formateDate } from '../utils/date/formateDate';
-import { daysMaturity } from '../utils/date/daysMaturity';
+import { calculateDateDifference } from '../utils/date/daysMaturity';
+import {
+	calcCouponIncome,
+	calcCouponRub,
+} from '../utils/calculations/calcCouponIncome';
+import { yieldYearIncome } from '../utils/calculations/calcYieldYear';
 import type { ColumnType } from 'antd/es/table';
 import './table.css';
 
@@ -87,7 +92,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const TableEdit: React.FC<TableEditProps> = ({ className }) => {
-	const { bonds, removeBond, editingBond } = useBondStoreContext();
+	const { bonds, removeBond, editingBond } = useAppStoreContext();
 	const [editingKey, setEditingKey] = useState<string>('');
 	const [form] = Form.useForm();
 
@@ -107,22 +112,22 @@ const TableEdit: React.FC<TableEditProps> = ({ className }) => {
 		try {
 			// Получаем значения из формы (редактируемый обьект ОФЗ)
 			const row = await form.validateFields();
-			console.log(row);
 
 			const formateBuyDate = formateDate(row.buyDate);
 			const formateSellDate = formateDate(row.sellDate);
 			const formateCouponDate = formateDate(row.couponDate);
-
-			console.log(formateCouponDate);
 
 			const newRow = {
 				...row,
 				buyDate: formateBuyDate ? formateBuyDate : row.buyDate,
 				sellDate: formateSellDate ? formateSellDate : row.sellDate,
 				couponDate: formateCouponDate ? formateCouponDate : row.couponDate,
-				daysToMaturity: daysMaturity(row),
+				daysToMaturity: calculateDateDifference(row),
+				couponIncome: calcCouponIncome(row),
+				couponIncomeRub: calcCouponRub(row),
+				yieldYear: yieldYearIncome(row),
 			};
-			console.log(newRow.couponDate);
+
 			// Копируем массив облигаций
 			const newBonds = [...bonds];
 			// Находим в массиве индекс того обьекта(ОФЗ) на котором нажали Edit

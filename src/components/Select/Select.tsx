@@ -18,7 +18,7 @@ interface CustomSelectProps {
 
 const _Select: React.FC<CustomSelectProps> = ({
 	options,
-	showSearch = true,
+	showSearch = false,
 	variant,
 	placeholder = 'Выбери зачение',
 	optionFilterProp = 'label',

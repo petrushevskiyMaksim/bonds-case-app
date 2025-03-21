@@ -1,56 +1,37 @@
 import moment from 'moment';
 import dayjs from 'dayjs';
-import { formateDate } from '../date/formateDate';
+import { DataType } from '../../../components/Table/TableEdit'; // тип облигации (структура данных)
 
-export function daysMaturity(bond) {
-	const { buyDate, sellDate } = bond;
-	console.log(buyDate);
-	console.log(sellDate);
+type DateInput = moment.Moment | dayjs.Dayjs | string;
 
-	const parseDate = value => {
-		if (moment.isMoment(value)) {
-			return value; // Если это уже Moment объект
-		} else if (dayjs.isDayjs(value)) {
-			return moment(value.toISOString()); // Преобразуем Day.js в Moment
-		} else if (typeof value === 'string') {
-			// const newValue = formateDate(value);
-			return moment(value, 'DD-MM-YYYY'); // Если это строка, создаем Moment объект
-		} else {
-			throw new Error('Неверный формат даты');
-		}
-	};
-
-	function calculateDaysToMaturity(buyDate, sellDate) {
-		const momentSaleDate = parseDate(sellDate);
-		const momentPurchaseDate = parseDate(buyDate);
-
-		// Вычисляем разницу в днях
-		const differenceInDays = momentSaleDate.diff(momentPurchaseDate, 'days');
-		return differenceInDays;
+function parseDate(input: DateInput): moment.Moment {
+	if (moment.isMoment(input)) {
+		return input;
 	}
 
-	return calculateDaysToMaturity(buyDate, sellDate);
+	if (dayjs.isDayjs(input)) {
+		return moment(input.toDate());
+	}
 
-	// Форматируем результат в строку "день месяц год"
-	// return differenceInDays.format('DD-MMMM YYYY');
+	// Предполагаем, что строка может быть в формате "день месяц год" или "год месяц день"
+	const formats = ['DD-MM-YYYY', 'YYYY-MM-DD'];
+	const parsedDate = moment(input, formats, true);
 
-	// return {
-	// 	differenceInDays,
-	// 	formattedDate,
-	// };
+	if (!parsedDate.isValid()) {
+		console.log(input);
 
-	// let diff;
+		throw new Error('Неверный формат даты');
+	}
 
-	// if (moment.isMoment(buyDate) && moment.isMoment(sellDate)) {
-	// 	diff = sellDate.diff(buyDate, 'day');
-	// } else if (dayjs.isDayjs(buyDate) && dayjs.isDayjs(sellDate)) {
-	// 	diff = sellDate.diff(buyDate, 'day');
-	// } else {
-	// 	const dayBuy = formateDate(buyDate);
-	// 	const daySell = formateDate(sellDate);
-	// 	const createMomentBuyDay = moment(buyDate, 'DD-MM-YYYY');
-	// 	const createMomentSellDay = moment(sellDate, 'DD-MM-YYYY');
+	return parsedDate;
+}
 
-	// 	diff = createMomentSellDay.diff(createMomentBuyDay, 'day');
-	// 	console.log(diff);
+export function calculateDateDifference(bond: DataType): string {
+	const { buyDate, sellDate } = bond;
+	const momentDate1 = parseDate(sellDate);
+	const momentDate2 = parseDate(buyDate);
+
+	const diff = momentDate1.diff(momentDate2, 'days'); // Разница в днях
+
+	return diff;
 }

@@ -1,11 +1,16 @@
 import React from 'react';
 import type { FormInstance } from 'antd';
 import { Button, Form, Input, DatePicker } from 'antd';
-import { useBondStoreContext } from '../../store/BondStoreProvider';
-import { daysMaturity } from '../utils/date/daysMaturity';
-import { calcCouponIncome } from '../utils/calculations/calcCouponIncome';
+import { useAppStoreContext } from '../../store/BondStoreProvider';
+import { calculateDateDifference } from '../utils/date/daysMaturity';
+import {
+	calcCouponIncome,
+	calcCouponRub,
+} from '../utils/calculations/calcCouponIncome';
+import { yieldYearIncome } from '../utils/calculations/calcYieldYear';
 import { DataType } from '../Table/TableEdit'; // тип облигации (структура данных)
 import moment from 'moment'; // Импортируем moment для работы с датами
+import { v4 as uuidv4 } from 'uuid';
 import './form.css';
 
 interface FormBondProps {
@@ -36,13 +41,10 @@ const SubmitButton: React.FC<React.PropsWithChildren<SubmitButtonProps>> = ({
 };
 
 const FormBond: React.FC<FormBondProps> = ({ className }) => {
-	const { bonds, addBond } = useBondStoreContext();
+	const { bonds, addBond } = useAppStoreContext();
 	const [form] = Form.useForm();
 
 	const onFinish = (values: any) => {
-		// const { calcDaysToMaturity } = daysMaturity(values);
-		console.log(values.buyDate);
-
 		const newBond: DataType = {
 			...values,
 			// Преобразуем объекты moment в строки
@@ -53,10 +55,10 @@ const FormBond: React.FC<FormBondProps> = ({ className }) => {
 				: '',
 
 			couponIncome: calcCouponIncome(values),
-			// couponIncomeRub: calcCouponRub(values),
-			daysToMaturity: daysMaturity(values),
-			// yieldYear: yieldYearIncome(values),
-			key: Date.now().toString(),
+			couponIncomeRub: calcCouponRub(values),
+			daysToMaturity: calculateDateDifference(values),
+			yieldYear: yieldYearIncome(values),
+			key: uuidv4(),
 			order: bonds.length + 1,
 		};
 

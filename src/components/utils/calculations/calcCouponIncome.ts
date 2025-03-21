@@ -1,4 +1,4 @@
-import { daysMaturity } from '../date/daysMaturity';
+import { calculateDateDifference } from '../date/daysMaturity';
 
 export function calcCouponIncome(bond) {
 	const num =
@@ -13,7 +13,7 @@ export function calcCouponIncome(bond) {
 }
 
 export function calcCouponRub(bond) {
-	const daysToMaturity = daysMaturity(bond);
+	const daysToMaturity = calculateDateDifference(bond);
 	const quantityCouponYear = 365 / Math.floor(365 / Number(bond.couponPeriod));
 	const yearsToMaturity = Number(daysToMaturity) / 365;
 

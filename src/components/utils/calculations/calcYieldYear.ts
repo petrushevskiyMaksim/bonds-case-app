@@ -1,9 +1,9 @@
-import { daysMaturity } from '../date/daysMaturity';
+import { calculateDateDifference } from '../date/daysMaturity';
 
 export function yieldYearIncome(bond) {
 	const { nominalPrice, buyPrice, couponPrice, couponPeriod, brokerTax, NKD } =
 		bond;
-	const daysToMaturity = daysMaturity(bond);
+	const daysToMaturity = calculateDateDifference(bond);
 
 	const tax = Number(buyPrice) * (Number(brokerTax) / 100);
 	const quantityCouponYear = 365 / Math.floor(365 / Number(couponPeriod));
@@ -19,7 +19,6 @@ export function yieldYearIncome(bond) {
 				difference / yearsToMaturity) /
 				(Number(buyPrice) + Number(NKD) + Number(tax))) *
 			100;
-		
 	} else {
 		result =
 			((Number(couponPrice) *
@@ -27,7 +26,6 @@ export function yieldYearIncome(bond) {
 				difference) /
 				(Number(buyPrice) + Number(tax) + Number(NKD))) *
 			100;
-		
 	}
 
 	return `${Math.floor(result * 100) / 100} % (${calcCouponRub(bond)} руб.)`;
@@ -36,7 +34,7 @@ export function yieldYearIncome(bond) {
 export function calcCouponRub(bond) {
 	const { nominalPrice, buyPrice, couponPrice, couponPeriod, brokerTax, NKD } =
 		bond;
-	const daysToMaturity = daysMaturity(bond);
+	const daysToMaturity = calculateDateDifference(bond);
 
 	const tax = Number(buyPrice) * (Number(brokerTax) / 100);
 	const quantityCouponYear = 365 / Math.floor(365 / Number(couponPeriod));

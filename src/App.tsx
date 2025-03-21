@@ -4,15 +4,15 @@ import { Title } from './components/Title';
 import { FormBond } from './components/FormBond';
 import { ListResourses } from './components/ListResourses';
 import TableEdit from './components/Table/TableEdit';
-import { _Modal } from './components/Modal';
-import InfoTotal from './components/InfoBlock/InfoTotal';
-import { BondStoreProvider } from './store/BondStoreProvider';
+import { Modal } from './components/Modal';
+import InfoTotal from './components/InfoTotal/InfoTotal';
+import { AppStoreProvider } from './store/BondStoreProvider';
 import './App.css';
 import './components/Table/table.css';
 
 const App: React.FC = () => {
 	return (
-		<BondStoreProvider>
+		<AppStoreProvider>
 			<Layout className='wrapper'>
 				<Flex className='form-resourses-wrapper' gap={40}>
 					<Flex className='form-wrap' flex={'auto'} vertical>
@@ -25,7 +25,7 @@ const App: React.FC = () => {
 						<Flex className='resourses-list-wrap distance' vertical>
 							<ListResourses className='list-resourses ' />
 							<div className='btn-resourses btn-outline'>
-								<_Modal />
+								<Modal />
 							</div>
 						</Flex>
 					</Flex>
@@ -38,7 +38,7 @@ const App: React.FC = () => {
 					<TableEdit className=''></TableEdit>
 				</Flex>
 			</Layout>
-		</BondStoreProvider>
+		</AppStoreProvider>
 	);
 };
 
